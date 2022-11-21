@@ -1,0 +1,603 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALMassachusetts:al_massachusetts.yml
+  - docassemble.MassAccess:massaccess.yml
+---
+metadata:
+  title: |
+    Pro-Se Pre-Trial Memorandum
+  short title: |
+    Pre-Trial Memo for pro-se litigant
+  tags:
+    - FA-00-00-00-00
+  authors:
+    - Jennifer Rudman
+---
+mandatory: True
+comment: |
+  Global interview metadata
+variable name: interview_metadata["final_upload_prose_respondent"]
+data:
+  al_weaver_version: "1.7.0"
+  generated on: "2022-11-18"
+  title: >-
+    Pro-Se Pre-Trial Memorandum
+  short title: >-
+    Pre-Trial Memo for pro-se litigant
+  description: |-
+    A pre-trial memorandum is a document that you will present to the judge at your pre-trial conference. This is an opportunity for you to discuss settlement, establish a deadline for discovery, address any motions that have been filed, resolve any discovery disputes, and determine if your case is ready to go to trial. 
+    
+    The pre-trial memorandum is the document that will show the judge your position on the things you and your spouse disagree about and how prepared you are for trial. This is not your only opportunity, but an important one!
+  original_form: >-
+    
+  allowed courts: 
+    - "Probate and Family Court"
+  categories:
+    - "FA-00-00-00-00"
+  typical role: "defendant"
+  generate download screen: True
+---
+code: |
+  interview_metadata['main_interview_key'] =  'final_upload_prose_respondent'
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "MA"
+---
+code: |
+  github_repo_name =  'docassemble-FinalUploadProseRespondent'
+---
+code: |
+  interview_short_title = "File a Pre-Trial Memorandum"
+---
+code: |
+  al_form_type = "existing_case" 
+---
+objects:
+  - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
+  - attorneys: ALPeopleList
+  - users: ALPeopleList.using(ask_number=True,target_number=1)
+---
+sections:
+  - review_final_upload_prose_respondent: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_final_upload_prose_respondent
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["final_upload_prose_respondent"]["allowed courts"]
+  nav.set_section("review_final_upload_prose_respondent")
+  user_role = "defendant"
+  How_the_judge_will_decide_your_case
+  defendant
+  uncontested_facts
+  Contested_Issues_of_Fact_and_Law__Explanation
+  contested_issues_of_fact
+  set_progress(12)
+  status_of_discovery
+  users_exhibits
+  users_witnesses
+  users_expert_witnesses
+  estimated_length_of_trial
+  set_progress(24)
+  length_of_marriage
+  users.gather()
+  set_parts(subtitle=str(users))
+  user[0].name.first
+  trial_court
+  trial_court.department
+  set_progress(36)
+  trial_court.division
+  trial_court.address.address
+  docket_number
+  set_progress(48)
+  other_parties.gather()
+  other_parties[0].birthdate
+  users[0].address.address
+  users[0].phone_number
+  users[0].birthdate
+  set_progress(60)
+  attorneys.gather()
+  attorneys[0].address.address
+  interview_order_final_upload_prose_respondent = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  final_upload_prose_respondent_intro
+  interview_order_final_upload_prose_respondent
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  final_upload_prose_respondent_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: ProSe_PreTrial_Memorandum
+continue button field: final_upload_prose_respondent_intro
+question: |
+  Pro-Se Pre-Trial Memorandum
+subquestion: |
+  Hello and welcome! This app is meant to help people who reside in Massachusetts only. The laws used and all other information contained in this app is only applicable to Massachusetts residents. If you do not live in the state of Massachusetts, this app is not for you. 
+  Additionally, this app is meant for users who were served with a complaint for divorce by their spouse. If your spouse has not taken any legal action, this app is not for you. 
+  Lastly, this app is meant for people who do not plan on getting a lawyer or legal representation for their divorce action. If you have already retained a lawyer, this app is not for you.
+---
+id: How the judge will decide your case
+question: |
+  How the judge will decide your case.
+subquestion: |
+  The judge will use different sections under chapter 208 of the Massachusetts General Law to decide your case. Based on any contested issues of fact (which you will enter soon), the judge will use the factors in the law to weigh each issue and decide your case from there. These factors include but are not limited to: the length of the marriage, the conduct of both parties during the marriage, and other similar facts which will be discussed later.
+continue button field: How_the_judge_will_decide_your_case
+---
+id: General Description of Claims and Defenses
+question: |
+  General Description of Claims and Defenses
+subquestion: |
+  Think of this as a timeline for the judge. It tells them who is involved in this case and what has happened so far.
+fields:
+  - "Are you the defendant?": defendant
+    datatype: yesno
+  - "What day did your spouse file their complaint for divorce?": complaint_filed_date
+    datatype: date
+  - "Did you file an answer or counterclaim to your spouse's complaint for divorce?": answer_counterclaim
+    datatype: yesno
+  - "What is the date you answered your spouse's complaint or filed your counterclaim?": answer_counterclaim_date
+    datatype: date
+  - "What were the grounds for divorce that your spouse cited in their complaint?": grounds_original_divorce
+    input type: area
+  - "What relief did your spouse request in their complaint for divorce?": relief_original_divorce
+    input type: area
+  - "If you filed a counterclaim or an answer, what were the grounds you cited?": grounds_counterclaim_answer
+    input type: area
+  - "If you filed a counterclaim or answer, what relief did you request?": counterclaim_answer_requested_relief
+    input type: area
+  - "Have any restraining orders been filed between you and your spouse?": Restraining_Orders
+    datatype: yesno
+---
+id: Uncontested Facts
+question: |
+  Uncontested Facts
+subquestion: |
+  Uncontested facts are things that you and your spouse agree on. They will not be argued at trial and the judge will not make a determination on them.
+fields:
+  - "What are the facts that you and your spouse agree on?": uncontested_facts
+    input type: area
+---
+id: Contested Issues of Fact and Law Explanation
+question: |
+  Contested Issues of Fact and Law - Explanation
+subquestion: |
+  Contested issues of fact are issues that you and your spouse cannot agree on. This means that if your case goes to trial, these things will be argued in front of the judge with evidence that you bring to court. The most commonly contested issues are: alimony, property division, child custody, and child support. For each contested issue the judge will use the General Law chapter 208, section(s) 28, 31, 34, and/or 48-55 to decide the outcome.
+continue button field: Contested_Issues_of_Fact_and_Law__Explanation
+---
+id: Your Contested Issues of Fact
+question: |
+  Your Contested Issues of Fact
+fields:
+  - "These are the facts that you and your spouse do not agree on. What do you plan on arguing with your spouse about?": contested_issues_of_fact
+    input type: area
+---
+id: Status of Discovery
+question: |
+  Status of Discovery
+subquestion: |
+  Discovery is a mandatory process that both parties engage in. You may have received official and/or non-official letters or emails from your spouse that ask you to send financial documents, answers to a list of questions, bank records, telephone records, etc. This information is meant to help both parties make their arguments in court. If you have received any requests for documents and did not give them to your spouse because you did not know you had to, explain this to the judge here.
+fields:
+  - "How far along are you in the process of discovery?": status_of_discovery
+    input type: area
+---
+id: Schedule of Exhibits
+question: |
+  Schedule of Exhibits
+subquestion: |
+  Exhibits are pieces of evidence which you plan to bring to court on the day of your trial. You will use these to make your arguments to the judge.
+fields:
+  - "Which exhibits would you present at trial to prove your case?": users_exhibits
+    input type: area
+---
+id: List of Witnesses
+question: |
+  List of Witnesses
+subquestion: |
+  In addition to exhibits, each party may call witnesses to testify at their trial. These are people who can tell the judge about the facts of your case that support your position.
+fields:
+  - "If your case goes to trial, who would you use as a witness in your case?": users_witnesses
+    input type: area
+---
+id: List of Expert Witnesses
+question: |
+  List of Expert Witnesses
+subquestion: |
+  Like the witnesses you mentioned on the previous screen, expert witnesses are people who will tell the judge information that will support your case. Unlike regular witnesses, these are people who qualify as experts in their field and do not know you personally. They will testify about facts of your case in relation to their field.
+fields:
+  - "Which experts do you plan on bringing to trial to prove any facts you and your spouse do not agree on": users_expert_witnesses
+    input type: area
+---
+id: Estimated Time of Trial
+question: |
+  Estimated Time of Trial
+fields:
+  - "How many days do you think a trial will take?": estimated_length_of_trial
+    datatype: integer
+    min: 0
+---
+id: Written Offer of Proof Regarding Factors the Judge will Consider
+question: |
+  Written Offer of Proof Regarding Factors the Judge will Consider
+subquestion: |
+  Based off your contested issues of fact, these are the facts that you believe support your position. These facts are related to the previously mentioned factors the judge will use to consider your arguments.
+fields:
+  - "How long were you and your spouse married for?": length_of_marriage
+  - "What type of lifestyle did you and your spouse experience while married?": station_in_life
+    input type: area
+  - "Spouse's current job": other_parties_occupation
+    input type: area
+  - "What is your current job?": users_occupation
+    input type: area
+  - "What is you and your spouse's annual income and where did it come from?": amount_and_sources_of_income
+    input type: area
+  - "How did you and your spouse act during your marriage that you believe supports your case?": conduct_of_parties_during_marriage
+    input type: area
+  - "What is the level of education of you and your spouse?": education_and_skills_of_parties
+    input type: area
+  - "Based off the previous questions, do you think either you or your spouse have any opportunities to earn more money?": future_earning_opportunities
+    input type: area
+  - "What age do you think you and your spouse will retire at?": anticipated_age_of_retirement
+    input type: area
+  - "In what ways did you contribute to your marriage? These can take multiple forms": contribution
+    input type: area
+  - "How much do you think your home is worth?": house_value
+    datatype: currency
+    min: 0
+---
+id: This Pre Trial Memorandum
+question: |
+  This Pre-Trial Memorandum
+subquestion: |
+  Think of this as a quick summary of the memo you’re almost done writing. It tells the judge who wrote this document and for which case they are writing it for.
+fields:
+  - "Your first name": user[0].name.first
+  - "What is your spouse's current address?": plaintiff[0].address.address
+    input type: area
+  - "What date did the judge assign for your trial?": trial_date
+    datatype: date
+---
+id: preview final_upload_prose_respondent
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_final_upload_prose_respondent'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: final_upload_prose_respondent_preview_question    
+---
+code: |
+  signature_fields = []
+---
+code: |
+  contested_issues_of_law = DAEmpty()
+---
+code: |
+  plaintiff = DAEmpty()
+---
+code: |
+  defendant = DAEmpty()
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  addresses_to_search = [user.address for user in users]
+---
+id: final upload prose respondent review screen
+event: review_final_upload_prose_respondent
+question: |
+  Review your answers
+review:
+  - Edit: other_parties_occupation
+    button: |
+      **Spouse's current job**:
+      > ${ single_paragraph(other_parties_occupation) }
+  - Edit: uncontested_facts
+    button: |
+      **What are the facts that you and your spouse agree on?**:
+      > ${ single_paragraph(uncontested_facts) }
+  - Edit: answer_counterclaim
+    button: |
+      **Did you file an answer or counterclaim to your spouse's complaint for divorce?**:
+      ${ word(yesno(answer_counterclaim)) }
+  - Edit: user[0].name.first
+    button: |
+      **Your first name**:
+      ${ user[0].name.first }
+  - Edit: trial_court
+    button: |
+      **Trial court**
+  
+      % if defined("trial_court.name.first"):
+      * name: ${ trial_court.name.full() }
+      % endif
+      % if defined("trial_court.department"):
+      * department: ${ trial_court.department }
+      % endif
+      % if defined("trial_court.address.county"):
+      * address: ${ trial_court.address.block() }
+      % endif
+      % if defined("trial_court.division"):
+      * division: ${ trial_court.division }
+      % endif
+  - Edit: attorneys.revisit
+    button: |
+      **Attorneys**
+
+      % for item in attorneys:
+        * ${ item }
+      % endfor
+  - Edit: answer_counterclaim_date
+    button: |
+      **What is the date you answered your spouse's complaint or filed your counterclaim?**:
+      ${ answer_counterclaim_date }
+  - Edit: contested_issues_of_law
+    button: |
+      **Massachusetts General Law Chapter 208 section 34, 48-55**:
+      ${ contested_issues_of_law }
+  - Edit: other_parties.revisit
+    button: |
+      **Other parties**
+
+      % for item in other_parties:
+        * ${ item }
+      % endfor
+  - Edit: users_expert_witnesses
+    button: |
+      **Which experts do you plan on bringing to trial to prove any facts you and your spouse do not agree on**:
+      > ${ single_paragraph(users_expert_witnesses) }
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: contribution
+    button: |
+      **In what ways did you contribute to your marriage? These can take multiple forms**:
+      > ${ single_paragraph(contribution) }
+  - Edit: grounds_original_divorce
+    button: |
+      **What were the grounds for divorce that your spouse cited in their complaint?**:
+      > ${ single_paragraph(grounds_original_divorce) }
+  - Edit: estimated_length_of_trial
+    button: |
+      **How many days do you think a trial will take?**:
+      ${ estimated_length_of_trial }
+  - Edit: users_exhibits
+    button: |
+      **Which exhibits would you present at trial to prove your case?**:
+      > ${ single_paragraph(users_exhibits) }
+  - Edit: Restraining_Orders
+    button: |
+      **Have any restraining orders been filed between you and your spouse?**:
+      ${ word(yesno(Restraining_Orders)) }
+  - Edit: house_value
+    button: |
+      **How much do you think your home is worth?**:
+      ${ currency(house_value) }
+  - Edit: plaintiff
+    button: |
+      **Plaintiff**:
+      ${ plaintiff }
+  - Edit: complaint_filed_date
+    button: |
+      **What day did your spouse file their complaint for divorce?**:
+      ${ complaint_filed_date }
+  - Edit: users_occupation
+    button: |
+      **What is your current job?**:
+      > ${ single_paragraph(users_occupation) }
+  - Edit: plaintiff[0].address.address
+    button: |
+      **What is your spouse's current address?**:
+      > ${ single_paragraph(plaintiff[0].address.address.block()) }
+  - Edit: length_of_marriage
+    button: |
+      **How long were you and your spouse married for?**:
+      ${ length_of_marriage }
+  - Edit: users_witnesses
+    button: |
+      **If your case goes to trial, who would you use as a witness in your case?**:
+      > ${ single_paragraph(users_witnesses) }
+  - Edit: relief_original_divorce
+    button: |
+      **What relief did your spouse request in their complaint for divorce?**:
+      > ${ single_paragraph(relief_original_divorce) }
+  - Edit: defendant
+    button: |
+      **Defendant**:
+      ${ defendant }
+  - Edit: trial_date
+    button: |
+      **What date did the judge assign for your trial?**:
+      ${ trial_date }
+  - Edit: grounds_counterclaim_answer
+    button: |
+      **If you filed a counterclaim or an answer, what were the grounds you cited?**:
+      > ${ single_paragraph(grounds_counterclaim_answer) }
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+  - Edit: status_of_discovery
+    button: |
+      **How far along are you in the process of discovery?**:
+      > ${ single_paragraph(status_of_discovery) }
+  - Edit: counterclaim_answer_requested_relief
+    button: |
+      **If you filed a counterclaim or answer, what relief did you request?**:
+      > ${ single_paragraph(counterclaim_answer_requested_relief) }
+  - Edit: contested_issues_of_fact
+    button: |
+      **These are the facts that you and your spouse do not agree on. What do you plan on arguing with your spouse about?**:
+      > ${ single_paragraph(contested_issues_of_fact) }
+  - Edit: conduct_of_parties_during_marriage
+    button: |
+      **How did you and your spouse act during your marriage that you believe supports your case?**:
+      > ${ single_paragraph(conduct_of_parties_during_marriage) }
+  - Edit: station_in_life
+    button: |
+      **What type of lifestyle did you and your spouse experience while married?**:
+      > ${ single_paragraph(station_in_life) }
+  - Edit: amount_and_sources_of_income
+    button: |
+      **What is you and your spouse's annual income and where did it come from?**:
+      > ${ single_paragraph(amount_and_sources_of_income) }
+  - Edit: education_and_skills_of_parties
+    button: |
+      **What is the level of education of you and your spouse?**:
+      > ${ single_paragraph(education_and_skills_of_parties) }
+  - Edit: anticipated_age_of_retirement
+    button: |
+      **What age do you think you and your spouse will retire at?**:
+      > ${ single_paragraph(anticipated_age_of_retirement) }
+  - Edit: future_earning_opportunities
+    button: |
+      **Based off the previous questions, do you think either you or your spouse have any opportunities to earn more money?**:
+      > ${ single_paragraph(future_earning_opportunities) }
+---
+continue button field: attorneys.revisit
+question: |
+  Edit attorneys
+subquestion: |
+  ${ attorneys.table }
+
+  ${ attorneys.add_action() }
+---
+table: attorneys.table
+rows: attorneys
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+edit:
+  - name.first
+  - address.address
+confirm: True
+
+---
+continue button field: other_parties.revisit
+question: |
+  Edit other_parties
+subquestion: |
+  ${ other_parties.table }
+
+  ${ other_parties.add_action() }
+---
+table: other_parties.table
+rows: other_parties
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Birthdate: |
+      row_item.birthdate if defined("row_item.birthdate") else ""
+edit:
+  - name.first
+  - birthdate
+confirm: True
+
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Birthdate: |
+      row_item.birthdate if defined("row_item.birthdate") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Phone number: |
+      row_item.phone_number if defined("row_item.phone_number") else ""
+edit:
+  - birthdate
+  - address.address
+  - name.first
+  - phone_number
+confirm: True
+
+---
+id: download final_upload_prose_respondent
+event: final_upload_prose_respondent_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_final_upload_prose_respondent'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+progress: 100
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - final_upload_prose_respondent_Post_interview_instructions: ALDocument.using(title="Instructions", filename="final_upload_prose_respondent_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - final_upload_prose_respondent_attachment: ALDocument.using(title="Pro-Se Pre-Trial Memorandum", filename="final_upload_prose_respondent", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[final_upload_prose_respondent_Post_interview_instructions, final_upload_prose_respondent_attachment], filename="final_upload_prose_respondent", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[final_upload_prose_respondent_attachment],  filename="final_upload_prose_respondent", title="All forms to deliver to court", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+attachments:
+  - name: Post-interview-Instructions
+    filename: final_upload_prose_respondent_next_steps
+    docx template file: final_upload_prose_respondent_next_steps.docx
+    variable name: final_upload_prose_respondent_Post_interview_instructions[i]
+  - name: final upload prose respondent
+    filename: final_upload_prose_respondent
+    variable name: final_upload_prose_respondent_attachment[i]
+    skip undefined: True
+    docx template file: final_upload_prose_respondent.docx
+
+
